@@ -1,6 +1,6 @@
 const { AuthService, UsersService } = require("../service");
 const { HttpCode } = require("../helpers/constants");
-const { getSuccesObject } = require("./controllersFunction");
+const { getSuccesObject, getErrorObject } = require("./controllersFunction");
 
 const serviseUser = new UsersService();
 const serviseAuth = new AuthService();
@@ -121,10 +121,12 @@ const avatars = async (req, res, next) => {
 const verify = async (req, res, next) => {
   try {
     const result = await serviseUser.verify(req.params);
+    console.log("🚀 ~ file: users.js ~ line 124 ~ verify ~ result", result);
+
     if (result) {
       res
         .status(HttpCode.OK)
-        .json({}, getSuccesObject(result, "Verification successful"));
+        .json(getSuccesObject({ message: "Verification successful" }));
     } else {
       return next(
         getErrorObject(HttpCode.NOT_FOUND, "Not Found", "User not found")
