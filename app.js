@@ -25,7 +25,7 @@ app.use(
   rateLimit({
     windowMs: apiLimit.windowMs,
     max: apiLimit.max,
-    handler: (req, res, nexy) => {
+    handler: (req, res, next) => {
       next(
         new ErrorHandler(
           HttpCode.BAD_REQUEST,
