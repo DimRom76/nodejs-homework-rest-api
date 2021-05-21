@@ -1,4 +1,4 @@
-const User = require("../schemas/user");
+const User = require('../schemas/user');
 
 class UsersRepository {
   constructor() {
@@ -16,8 +16,9 @@ class UsersRepository {
   }
 
   async create(body) {
+    // eslint-disable-next-line new-cap
     const user = new this.model(body);
-    //так сделали чтобы сработал хук на pre save
+    //  так сделали чтобы сработал хук на pre save
     return user.save();
   }
 
