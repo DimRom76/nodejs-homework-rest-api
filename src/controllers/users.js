@@ -119,3 +119,4 @@ const avatars = async (req, res, next) => {
 };
 
 module.exports = { reg, login, logout, update, current, avatars };
+
