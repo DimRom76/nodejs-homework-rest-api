@@ -1,3 +1,4 @@
+
 const { users } = require("./data ");
 
 const findByEmail = jest.fn((email) => {

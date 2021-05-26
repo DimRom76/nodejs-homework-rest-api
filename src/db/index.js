@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 require("dotenv").config();
 const uriDb = process.env.URI_DB;
-
 const db = new mongoose.connect(uriDb, {
   useCreateIndex: true,
   useNewUrlParser: true,

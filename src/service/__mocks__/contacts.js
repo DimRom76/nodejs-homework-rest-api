@@ -1,3 +1,4 @@
+
 const { contacts } = require("./data.js");
 
 //userId - можно доделать самому добавив owner в файковую базу и фольтруя по нему
