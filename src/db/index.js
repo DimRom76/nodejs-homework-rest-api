@@ -1,31 +1,29 @@
-const mongoose = require('mongoose');
-require('dotenv').config();
+const mongoose = require("mongoose");
+require("dotenv").config();
 const uriDb = process.env.URI_DB;
-
-// eslint-disable-next-line new-cap
 const db = new mongoose.connect(uriDb, {
   useCreateIndex: true,
   useNewUrlParser: true,
   useFindAndModify: false,
-  useUnifiedTopology: true
+  useUnifiedTopology: true,
 });
 
-mongoose.connection.on('connected', () => {
+mongoose.connection.on("connected", () => {
   console.log(`Mongoose connected`);
 });
 
-mongoose.connection.on('error', (err) => {
+mongoose.connection.on("error", (err) => {
   console.log(`Mongoose connection error: ${err.message}`);
 });
 
-mongoose.connection.on('disconnected', () => {
+mongoose.connection.on("disconnected", () => {
   console.log(`Mongoose disconnected`);
 });
 
-//  событие закртие приложения
-process.on('SIGINT', async () => {
+//событие закртие приложения
+process.on("SIGINT", async () => {
   mongoose.connection.close(() => {
-    console.log('Connection for DB disconnected and app terminated');
+    console.log("Connection for DB disconnected and app terminated");
     process.exit(1);
   });
 });

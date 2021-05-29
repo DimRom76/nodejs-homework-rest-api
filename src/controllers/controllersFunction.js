@@ -1,6 +1,6 @@
 const { HttpCode } = require("../helpers/constants");
 
-function getSuccesObject(data, code) {
+function getSuccesObject(data, code = HttpCode.OK) {
   return {
     status: "succes",
     code,

@@ -118,5 +118,24 @@ const avatars = async (req, res, next) => {
     .json(getSuccesObject({ avatarURL: url }, HttpCode.OK));
 };
 
-module.exports = { reg, login, logout, update, current, avatars };
+const verify = async (req, res, next) => {
+  try {
+    const result = await serviseUser.verify(req.params);
+    console.log("🚀 ~ file: users.js ~ line 124 ~ verify ~ result", result);
+
+    if (result) {
+      res
+        .status(HttpCode.OK)
+        .json(getSuccesObject({ message: "Verification successful" }));
+    } else {
+      return next(
+        getErrorObject(HttpCode.NOT_FOUND, "Not Found", "User not found")
+      );
+    }
+  } catch (e) {
+    next(e);
+  }
+};
+
+module.exports = { reg, login, logout, update, current, avatars, verify };
 

@@ -1,4 +1,5 @@
-const { ContactsRepository } = require('../repository');
+
+const { ContactsRepository } = require("../repository");
 
 class ContactsService {
   constructor() {
@@ -7,7 +8,7 @@ class ContactsService {
 
   async getAll(userId, query) {
     const data = await this.repositories.contacts.getAll(userId, query);
-    //  для каждого сервиса можно отдавать разные данные поэтому формат ответа формируем тут
+    //для каждого сервиса можно отдавать разные данные поэтому формат ответа формируем тут
     const { docs: contacts, totalDocs: total, limit, page } = data;
 
     return { contacts, total, limit, page };

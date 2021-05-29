@@ -1,5 +1,5 @@
-const { users } = require('./data ');
-const jest = require('jest');
+
+const { users } = require("./data ");
 
 const findByEmail = jest.fn((email) => {
   const [user] = users.filter((el) => String(el.email) === String(email));
@@ -9,7 +9,7 @@ const findByEmail = jest.fn((email) => {
 
 const findById = jest.fn((id) => {
   const [user] = users.filter((el) => String(el._id) === String(id));
-  return user;
+  return result;
 });
 
 const create = jest.fn((body) => {
@@ -37,5 +37,5 @@ module.exports = {
   create,
   updateToken,
   updateAvatar,
-  getAvatar
+  getAvatar,
 };

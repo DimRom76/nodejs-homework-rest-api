@@ -1,8 +1,12 @@
-const { UsersRepository } = require("../repository");
 const cloudinary = require("cloudinary").v2;
+
 const fs = require("fs/promises");
-const { ErrorHandler } = require("../helpers/errorHandler");
 require("dotenv").config();
+const { nanoid } = require("nanoid");
+
+const { ErrorHandler } = require("../helpers/errorHandler");
+const { UsersRepository } = require("../repository");
+const EmailService = require("./email");
 
 class UsersService {
   constructor() {
@@ -13,37 +17,63 @@ class UsersService {
       api_secret: process.env.CLOUD_API_SECRET,
     });
 
+    this.emailService = new EmailService();
     this.repositories = { users: new UsersRepository() };
   }
 
   async create(body) {
-    const data = await this.repositories.users.create(body);
+    const verifyToken = nanoid();
+    const { email } = body;
+
+    try {
+      await this.emailService.sendEmail(verifyToken, email);
+    } catch (e) {
+      throw new ErrorHandler(503, e.message, "Service Unavailable");
+    }
+
+    const data = await this.repositories.users.create({ ...body, verifyToken });
     return data;
   }
 
   async findByEmail(email) {
-    const data = await this.repositories.users.findByEmail(email);
+    const data = await this.repositories.users.findByField({ email });
     return data;
   }
 
   async findById(id) {
-    const data = await this.repositories.users.findById(id);
+    const data = await this.repositories.users.findByField({ _id: id });
     return data;
   }
 
   async findByToken(token) {
-    const { subscription, email } = await this.repositories.users.findByToken(
-      token
-    );
+    const { subscription, email } = await this.repositories.users.findByField({
+      token,
+    });
     return { subscription, email };
   }
 
   async update(id, body) {
-    const { subscription, email } = await this.repositories.users.update(
+    const { subscription, email } = await this.repositories.users.updateFields(
       id,
       body
     );
     return { subscription, email };
+  }
+
+  async verify({ verificationToken }) {
+    const user = await this.repositories.users.findByField({
+      verifyToken: verificationToken,
+    });
+    if (user) {
+      //зафиксируем что пользователь прошел проверку по емаил
+      await this.repositories.users.updateFields(user._id, {
+        verify: true,
+        verifyToken: null,
+      });
+
+      return true;
+    }
+    return false;
   }
 
   async updateAvatar(id, pathFile) {
@@ -51,12 +81,14 @@ class UsersService {
       const objCloud = await this.#uploadCloud(pathFile);
       const { secure_url: avatarURL, public_id: idCloudAvatar } = objCloud;
 
-      //получаем и чистим старую аватарку у пользователя
-      const oldAvatar = await this.repositories.users.getAvatar(id);
+      //получаем пользователя и чистим старую аватарку
+      const oldUserAvatar = await this.repositories.users.findByField({
+        _id: id,
+      });
 
-      if (oldAvatar.idCloudAvatar) {
+      if (oldUserAvatar.idCloudAvatar) {
         this.cloudinary.uploader.destroy(
-          oldAvatar.idCloudAvatar,
+          oldUserAvatar.idCloudAvatar,
           (err, result) => {
             console.log(err, result);
           }
@@ -64,7 +96,10 @@ class UsersService {
       }
 
       //записываем новую аватарку
-      await this.repositories.users.updateAvatar(id, avatarURL, idCloudAvatar);
+      await this.repositories.users.updateFields(id, {
+        avatarURL,
+        idCloudAvatar,
+      });
 
       //удаляем временный файл с диска
       await fs.unlink(pathFile);
